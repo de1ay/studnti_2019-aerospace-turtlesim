@@ -57,7 +57,16 @@ def move(speed, distance):
             velocity_publisher.publish(velocity_message)
 #---------------------------------------------------------------------------
 #--rotate--
-
+from math import radians
+def rotate():
+    turn_cmd = Twist()
+    turn_cmd.linear.x = 0.5
+    turn_cmd.angular.z = radians(90)
+    loop_rate = rospy.Rate(10) # we publish the velocity at 10 Hz (10 times a second)    
+    cmd_vel_topic='/turtle1/cmd_vel'
+    #create a publisher for the velocity message on the appropriate topic.
+    velocity_publisher = rospy.Publisher(cmd_vel_topic, Twist, queue_size=10)
+    velocity_publisher.publish(turn_cmd)
 #--end rotate--
 if __name__ == '__main__': # if main program
     try:
@@ -73,7 +82,8 @@ if __name__ == '__main__': # if main program
         time.sleep(2)
         print 'move: '
         move (1.0, 5.0)
-        time.sleep(2)
+        rotate()
+        time.sleep(5)
         print 'start reset: '
         rospy.wait_for_service('reset')
         reset_turtle = rospy.ServiceProxy('reset', Empty)
