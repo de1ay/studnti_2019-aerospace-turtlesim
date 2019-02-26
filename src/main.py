@@ -16,10 +16,6 @@ def poseCallback(pose_message):
     x= pose_message.x
     y= pose_message.y
     yaw = pose_message.theta
-    #print "pose callback"
-    #print ('x = {}'.format(pose_message.x)) 
-    #print ('y = %f' %pose_message.y) 
-    #print ('yaw = {}'.format(pose_message.theta)) 
 #---------------------------------------------------------------------------
 def move(speed, distance):
         #declare a Twist message to send velocity commands
@@ -59,6 +55,7 @@ def move(speed, distance):
 #--rotate--
 from math import radians
 def rotate():
+    orig = yaw
     turn_cmd = Twist()
     turn_cmd.linear.x = 0.5
     turn_cmd.angular.z = radians(90)
@@ -67,6 +64,8 @@ def rotate():
     #create a publisher for the velocity message on the appropriate topic.
     velocity_publisher = rospy.Publisher(cmd_vel_topic, Twist, queue_size=10)
     velocity_publisher.publish(turn_cmd)
+    while yaw < orig+radians(90):
+        continue
 #--end rotate--
 if __name__ == '__main__': # if main program
     try:
@@ -81,8 +80,13 @@ if __name__ == '__main__': # if main program
 
         time.sleep(2)
         print 'move: '
-        move (1.0, 5.0)
+        move(0.5, 3.0)
         rotate()
+        move(0.5, 3.0)
+        rotate()
+        move(0.5, 3.0)
+        rotate()
+        move(0.5, 3.0)
         time.sleep(5)
         print 'start reset: '
         rospy.wait_for_service('reset')
