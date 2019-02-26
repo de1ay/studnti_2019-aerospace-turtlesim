@@ -56,6 +56,9 @@ def move(speed, distance):
             velocity_message.linear.x =0
             velocity_publisher.publish(velocity_message)
 #---------------------------------------------------------------------------
+#--rotate--
+
+#--end rotate--
 if __name__ == '__main__': # if main program
     try:
         
