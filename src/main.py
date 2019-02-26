@@ -83,6 +83,7 @@ if __name__ == '__main__': # if main program
         print 'move: '
         move (1.0, 5.0)
         rotate()
+        mover (5.0, 5.0)
         time.sleep(5)
         print 'start reset: '
         rospy.wait_for_service('reset')
