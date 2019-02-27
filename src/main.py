@@ -19,7 +19,7 @@ def poseCallback(pose_message):
     x= pose_message.x
     y= pose_message.y
     yaw = pose_message.theta
-
+    
 def move(speed, distance):
     velocity_message = Twist()
     x0 = x
@@ -42,6 +42,7 @@ def move(speed, distance):
 
 
 def rotate():
+    orig = yaw
     turn_cmd = Twist()
     turn_cmd.linear.x = 0.5
     turn_cmd.angular.z = radians(90)
@@ -49,10 +50,8 @@ def rotate():
     cmd_vel_topic='/turtle1/cmd_vel'
     velocity_publisher = rospy.Publisher(cmd_vel_topic, Twist, queue_size=10)
     velocity_publisher.publish(turn_cmd)
-    pastYaw = yaw + radians(1)
-    while pastYaw != yaw:
-      pastYaw = yaw
-
+    while yaw < orig+radians(90):
+        continue
 
 if __name__ == '__main__': 
     try:
@@ -67,8 +66,14 @@ if __name__ == '__main__':
 
         time.sleep(2)
         print 'move: '
-        move (1.0, 5.0)
+        move(0.5, 3.0)
         rotate()
+        move(0.5, 3.0)
+        rotate()
+        move(0.5, 3.0)
+        rotate()
+        move(0.5, 3.0)
+        time.sleep(5)
         print 'start reset: '
         rospy.wait_for_service('reset')
         reset_turtle = rospy.ServiceProxy('reset', Empty)
