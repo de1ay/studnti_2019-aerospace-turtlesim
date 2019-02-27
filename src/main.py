@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
-import math
 import time
+import math
 from math import radians
 from turtlesim.msg import Pose
 from std_srvs.srv import Empty
@@ -20,42 +20,39 @@ def poseCallback(pose_message):
     y= pose_message.y
     yaw = pose_message.theta
     
-def move(speed, distance):
+def move():
     velocity_message = Twist()
     x0 = x
     y0 = y
 
-    velocity_message.linear.x = speed
+    velocity_message.linear.x = 0.5
 
     distance_moved = 0.0
     loop_rate = rospy.Rate(10)   
     cmd_vel_topic='/turtle1/cmd_vel'
     velocity_publisher = rospy.Publisher(cmd_vel_topic, Twist, queue_size=10)
-    while True :
+    while distance_moved < 3.0:
             velocity_publisher.publish(velocity_message)
-            loop_rate.sleep()        
-            distance_moved = distance_moved+abs(0.5 * math.sqrt(((x-x0) ** 2) + ((y-y0) ** 2)))
-            if  not (distance_moved < distance):
-                break
-    velocity_message.linear.x =0
+            distance_moved = math.sqrt(((x-x0) ** 2) + ((y-y0) ** 2))
+    velocity_message.linear.x = 0
     velocity_publisher.publish(velocity_message)
 
 
 def rotate():
     orig = yaw
     turn_cmd = Twist()
-    turn_cmd.linear.x = 0.5
     turn_cmd.angular.z = radians(90)
     loop_rate = rospy.Rate(10)   
     cmd_vel_topic='/turtle1/cmd_vel'
     velocity_publisher = rospy.Publisher(cmd_vel_topic, Twist, queue_size=10)
     velocity_publisher.publish(turn_cmd)
-    while yaw < orig+radians(90):
-        continue
+    while yaw < orig + radians(90): # TODO: Fix endless rotation bug (on second rotation)
+      velocity_publisher.publish(turn_cmd)
+    turn_cmd.angular.z = 0
+    velocity_publisher.publish(turn_cmd)
 
 if __name__ == '__main__': 
     try:
-        
         rospy.init_node('turtlesim_motion_pose', anonymous=True)
 
         cmd_vel_topic='/turtle1/cmd_vel'
@@ -65,14 +62,8 @@ if __name__ == '__main__':
         pose_subscriber = rospy.Subscriber(position_topic, Pose, poseCallback) 
 
         time.sleep(2)
-        print 'move: '
-        move(0.5, 3.0)
+        move()
         rotate()
-        move(0.5, 3.0)
-        rotate()
-        move(0.5, 3.0)
-        rotate()
-        move(0.5, 3.0)
         time.sleep(5)
         print 'start reset: '
         rospy.wait_for_service('reset')
